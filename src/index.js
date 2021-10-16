@@ -4,8 +4,20 @@
 import cv from "@mjyc/opencv.js";
 import xs from "xstream";
 import { makeDOMDriver } from "@cycle/dom";
-import { run } from "@cycle/run"; //
+import { run } from "@cycle/run";
 import { makePoseDetectionDriver } from "cycle-posenet-driver";
+
+function tempAlert(msg,duration)
+{
+//  var el = document.createElement("div");
+ var el = document.getElementById("msg")
+ el.setAttribute("style","position:absolute;top:440px;left:12%;background-color:white;");
+ el.innerHTML = msg;
+//  setTimeout(function(){
+//   el.parentNode.removeChild(el);
+//  },duration);
+//  document.body.appendChild(el);
+}
 
 function main(sources) {
   // 3D model points
@@ -72,6 +84,10 @@ function main(sources) {
     nose_end_point2DX.delete();
     jaco.delete();
   };
+
+  let anhQuayTrai,anhQuayPhai,anhGiua
+  tempAlert('Quay mat sang trai', 5000)
+
 
   // main event loop
   sources.PoseDetection.poses.addListener({
@@ -143,83 +159,157 @@ function main(sources) {
       if (!success) {
         return;
       }
-      console.log("Rotation Vector:", rvec.data64F);
-      console.log(
-        "Rotation Vector (in degree):",
-        rvec.data64F.map(d => (d / Math.PI) * 180)
-      );
-      console.log("Translation Vector:", tvec.data64F);
+      // console.log("Rotation Vector:", rvec.data64F);
+      // console.log(
+      //   "Rotation Vector (in degree):",
+      //   rvec.data64F.map(d => (d / Math.PI) * 180)
+      // );
+      // console.log("Translation Vector:", tvec.data64F);
 
       // Project a 3D points [0.0, 0.0, 500.0],  [0.0, 500.0, 0.0],
       //   [500.0, 0.0, 0.0] as z, y, x axis in red, green, blue color
-      cv.projectPoints(
-        pointZ,
-        rvec,
-        tvec,
-        cameraMatrix,
-        distCoeffs,
-        noseEndPoint2DZ,
-        jaco
-      );
-      cv.projectPoints(
-        pointY,
-        rvec,
-        tvec,
-        cameraMatrix,
-        distCoeffs,
-        nose_end_point2DY,
-        jaco
-      );
-      cv.projectPoints(
-        pointX,
-        rvec,
-        tvec,
-        cameraMatrix,
-        distCoeffs,
-        nose_end_point2DX,
-        jaco
-      );
+      // cv.projectPoints(
+      //   pointZ,
+      //   rvec,
+      //   tvec,
+      //   cameraMatrix,
+      //   distCoeffs,
+      //   noseEndPoint2DZ,
+      //   jaco
+      // );
+      // cv.projectPoints(
+      //   pointY,
+      //   rvec,
+      //   tvec,
+      //   cameraMatrix,
+      //   distCoeffs,
+      //   nose_end_point2DY,
+      //   jaco
+      // );
+      // cv.projectPoints(
+      //   pointX,
+      //   rvec,
+      //   tvec,
+      //   cameraMatrix,
+      //   distCoeffs,
+      //   nose_end_point2DX,
+      //   jaco
+      // );
 
-      let im = cv.imread(document.querySelector("canvas"));
-      // color the detected eyes and nose to purple
-      for (var i = 0; i < numRows; i++) {
-        cv.circle(
-          im,
-          {
-            x: imagePoints.doublePtr(i, 0)[0],
-            y: imagePoints.doublePtr(i, 1)[0]
-          },
-          3,
-          [255, 0, 255, 255],
-          -1
+      // let im = cv.imread(document.querySelector("canvas"));
+
+      let rvecDegree = rvec.data64F.map((d) => (d / Math.PI) * 180);
+      if (rvecDegree[0] > 100 && !anhQuayTrai) {
+        console.log(
+          "Rotation Vector (in degree):",
+          rvec.data64F.map(d => (d / Math.PI) * 180)
         );
+        // window.alert('Thanh cong. Quay mat sang phai')
+        tempAlert('Thanh cong. Quay mat sang phai', 5000)
+        let canvas = document.querySelector('canvas');
+        anhQuayTrai = canvas.toDataURL('image/jpeg');
+        canvas.toBlob(function(blob) {
+          var newImg = document.createElement('img'),
+              url = URL.createObjectURL(blob);
+        
+          newImg.onload = function() {
+            // no longer need to read the blob so it's revoked
+            URL.revokeObjectURL(url);
+          };
+        
+          newImg.src = url;
+          document.body.appendChild(newImg);
+        });
       }
+
+      if (rvecDegree[0] < -100 && !anhQuayPhai && !!anhQuayTrai) {
+        console.log(
+          "Rotation Vector (in degree):",
+          rvec.data64F.map(d => (d / Math.PI) * 180)
+        );
+        tempAlert('Thanh cong. Quay mat chinh giua', 5000)
+        let canvas = document.querySelector('canvas');
+        anhQuayPhai = canvas.toDataURL('image/jpeg');
+        canvas.toBlob(function(blob) {
+          var newImg = document.createElement('img'),
+              url = URL.createObjectURL(blob);
+        
+          newImg.onload = function() {
+            // no longer need to read the blob so it's revoked
+            URL.revokeObjectURL(url);
+          };
+        
+          newImg.src = url;
+          document.body.appendChild(newImg);
+        });
+      }
+
+      if (rvecDegree[0] < 20 && rvecDegree[0] > -20 && !anhGiua && !!anhQuayTrai && !!anhQuayPhai) {
+        console.log(
+          "Rotation Vector (in degree):",
+          rvec.data64F.map(d => (d / Math.PI) * 180)
+        );
+      tempAlert('Thanh cong', 5000)
+        let canvas = document.querySelector('canvas');
+        anhGiua = canvas.toDataURL('image/jpeg');
+        canvas.toBlob(function(blob) {
+          var newImg = document.createElement('img'),
+              url = URL.createObjectURL(blob);
+        
+          newImg.onload = function() {
+            // no longer need to read the blob so it's revoked
+            URL.revokeObjectURL(url);
+          };
+        
+          newImg.src = url;
+          document.body.appendChild(newImg);
+        });
+      }
+
+
+
+      // console.log('im: ', document.querySelector("canvas"))
+      // color the detected eyes and nose to purple
+      // for (var i = 0; i < numRows; i++) {
+      //   cv.circle(
+      //     im,
+      //     {
+      //       x: imagePoints.doublePtr(i, 0)[0],
+      //       y: imagePoints.doublePtr(i, 1)[0]
+      //     },
+      //     3,
+      //     [255, 0, 255, 255],
+      //     -1
+      //   );
+      // }
       // draw axis
-      const pNose = { x: imagePoints.data64F[0], y: imagePoints.data64F[1] };
-      const pZ = {
-        x: noseEndPoint2DZ.data64F[0],
-        y: noseEndPoint2DZ.data64F[1]
-      };
-      const p3 = {
-        x: nose_end_point2DY.data64F[0],
-        y: nose_end_point2DY.data64F[1]
-      };
-      const p4 = {
-        x: nose_end_point2DX.data64F[0],
-        y: nose_end_point2DX.data64F[1]
-      };
-      cv.line(im, pNose, pZ, [255, 0, 0, 255], 2);
-      cv.line(im, pNose, p3, [0, 255, 0, 255], 2);
-      cv.line(im, pNose, p4, [0, 0, 255, 255], 2);
+      // const pNose = { x: imagePoints.data64F[0], y: imagePoints.data64F[1] };
+      // const pZ = {
+      //   x: noseEndPoint2DZ.data64F[0],
+      //   y: noseEndPoint2DZ.data64F[1]
+      // };
+      // const p3 = {
+      //   x: nose_end_point2DY.data64F[0],
+      //   y: nose_end_point2DY.data64F[1]
+      // };
+      // const p4 = {
+      //   x: nose_end_point2DX.data64F[0],
+      //   y: nose_end_point2DX.data64F[1]
+      // };
+      // cv.line(im, pNose, pZ, [255, 0, 0, 255], 2);
+      // cv.line(im, pNose, p3, [0, 255, 0, 255], 2);
+      // cv.line(im, pNose, p4, [0, 0, 255, 255], 2);
 
       // Display image
-      cv.imshow(document.querySelector("canvas"), im);
-      im.delete();
+      // cv.imshow(document.querySelector("canvas"), im);
+      // im.delete();
     }
   });
 
+
   const params$ = xs.of({
-    singlePoseDetection: { minPoseConfidence: 0.2 }
+    singlePoseDetection: { minPoseConfidence: 0.2 },
+    output: {showPoints: false, showSkeleton: false}
   });
   const vdom$ = sources.PoseDetection.DOM;
 

@@ -1,0 +1,9 @@
+
+.rectangle {
+    position: absolute;
+    width: 300px;
+    height: 380px;
+    top: 50px;
+    left: 170px;
+    border: 1px solid red;
+}
