@@ -1,22 +1,36 @@
 // Based on python code provided in "Head Pose Estimation using OpenCV and Dlib"
 //   https://www.learnopencv.com/head-pose-estimation-using-opencv-and-dlib/#code
 
-import cv from "@mjyc/opencv.js";
-import xs from "xstream";
-import { makeDOMDriver } from "@cycle/dom";
-import { run } from "@cycle/run";
-import { makePoseDetectionDriver } from "cycle-posenet-driver";
+import cv from '@mjyc/opencv.js';
+import xs from 'xstream';
+import { makeDOMDriver } from '@cycle/dom';
+import { run } from '@cycle/run';
+import { makePoseDetectionDriver } from 'cycle-posenet-driver';
 
-function tempAlert(msg,duration)
-{
-//  var el = document.createElement("div");
- var el = document.getElementById("msg")
- el.setAttribute("style","position:absolute;top:440px;left:12%;background-color:white;");
- el.innerHTML = msg;
-//  setTimeout(function(){
-//   el.parentNode.removeChild(el);
-//  },duration);
-//  document.body.appendChild(el);
+function tempAlert(msg, duration) {
+  //  var el = document.createElement("div");
+  var el = document.getElementById('msg');
+  el.setAttribute('style', 'position:absolute;top:440px;left:12%;background-color:white;');
+  el.innerHTML = msg;
+  //  setTimeout(function(){
+  //   el.parentNode.removeChild(el);
+  //  },duration);
+  //  document.body.appendChild(el);
+}
+
+function captureImage(canvas) {
+  canvas.toBlob(function (blob) {
+    var newImg = document.createElement('img'),
+      url = URL.createObjectURL(blob);
+
+    newImg.onload = function () {
+      // no longer need to read the blob so it's revoked
+      URL.revokeObjectURL(url);
+    };
+
+    newImg.src = url;
+    document.body.appendChild(newImg);
+  });
 }
 
 function main(sources) {
@@ -36,7 +50,7 @@ function main(sources) {
     -135.0, // Left eye left corner
     225.0,
     170.0,
-    -135.0 // Right eye right corne
+    -135.0, // Right eye right corne
     // -150.0, -150.0, -125.0,  // Left Mouth corner
     // 150.0, -150.0, -125.0,  // Right mouth corner
   ]);
@@ -54,9 +68,9 @@ function main(sources) {
     center[1],
     0,
     0,
-    1
+    1,
   ]);
-  console.log("Camera Matrix:", cameraMatrix.data64F);
+  console.log('Camera Matrix:', cameraMatrix.data64F);
 
   // Create Matrixes
   const imagePoints = cv.Mat.zeros(numRows, 2, cv.CV_64FC1);
@@ -85,13 +99,12 @@ function main(sources) {
     jaco.delete();
   };
 
-  let anhQuayTrai,anhQuayPhai,anhGiua
-  tempAlert('Quay mat sang trai', 5000)
-
+  let anhQuayTrai, anhQuayPhai, anhGiua;
+  tempAlert('Quay mat sang trai', 5000);
 
   // main event loop
   sources.PoseDetection.poses.addListener({
-    next: poses => {
+    next: (poses) => {
       // skip if no person or more than one person is found
       if (poses.length !== 1) {
         return;
@@ -99,18 +112,15 @@ function main(sources) {
 
       const person1 = poses[0];
       if (
-        !person1.keypoints.find(kpt => kpt.part === "nose") ||
-        !person1.keypoints.find(kpt => kpt.part === "leftEye") ||
-        !person1.keypoints.find(kpt => kpt.part === "rightEye")
+        !person1.keypoints.find((kpt) => kpt.part === 'nose') ||
+        !person1.keypoints.find((kpt) => kpt.part === 'leftEye') ||
+        !person1.keypoints.find((kpt) => kpt.part === 'rightEye')
       ) {
         return;
       }
-      const ns = person1.keypoints.filter(kpt => kpt.part === "nose")[0]
-        .position;
-      const le = person1.keypoints.filter(kpt => kpt.part === "leftEye")[0]
-        .position;
-      const re = person1.keypoints.filter(kpt => kpt.part === "rightEye")[0]
-        .position;
+      const ns = person1.keypoints.filter((kpt) => kpt.part === 'nose')[0].position;
+      const le = person1.keypoints.filter((kpt) => kpt.part === 'leftEye')[0].position;
+      const re = person1.keypoints.filter((kpt) => kpt.part === 'rightEye')[0].position;
 
       // 2D image points. If you change the image, you need to change vector
       [
@@ -122,7 +132,7 @@ function main(sources) {
         le.x,
         le.y, // Left eye left corner
         re.x,
-        re.y // Right eye right corner
+        re.y, // Right eye right corner
         // 345, 465, // Left Mouth corner
         // 453, 469 // Right mouth corner
       ].map((v, i) => {
@@ -147,15 +157,7 @@ function main(sources) {
         rvec.data64F[2] = -3.0;
       }
 
-      const success = cv.solvePnP(
-        modelPoints,
-        imagePoints,
-        cameraMatrix,
-        distCoeffs,
-        rvec,
-        tvec,
-        true
-      );
+      const success = cv.solvePnP(modelPoints, imagePoints, cameraMatrix, distCoeffs, rvec, tvec, true);
       if (!success) {
         return;
       }
@@ -201,72 +203,75 @@ function main(sources) {
       let rvecDegree = rvec.data64F.map((d) => (d / Math.PI) * 180);
       if (rvecDegree[0] > 100 && !anhQuayTrai) {
         console.log(
-          "Rotation Vector (in degree):",
-          rvec.data64F.map(d => (d / Math.PI) * 180)
+          'Rotation Vector (in degree):',
+          rvec.data64F.map((d) => (d / Math.PI) * 180)
         );
         // window.alert('Thanh cong. Quay mat sang phai')
-        tempAlert('Thanh cong. Quay mat sang phai', 5000)
+        tempAlert('Thanh cong. Quay mat sang phai', 5000);
         let canvas = document.querySelector('canvas');
         anhQuayTrai = canvas.toDataURL('image/jpeg');
-        canvas.toBlob(function(blob) {
-          var newImg = document.createElement('img'),
-              url = URL.createObjectURL(blob);
-        
-          newImg.onload = function() {
-            // no longer need to read the blob so it's revoked
-            URL.revokeObjectURL(url);
-          };
-        
-          newImg.src = url;
-          document.body.appendChild(newImg);
-        });
+        captureImage(canvas);
+        // canvas.toBlob(function (blob) {
+        //   var newImg = document.createElement('img'),
+        //     url = URL.createObjectURL(blob);
+
+        //   newImg.onload = function () {
+        //     // no longer need to read the blob so it's revoked
+        //     URL.revokeObjectURL(url);
+        //   };
+
+        //   newImg.src = url;
+        //   document.body.appendChild(newImg);
+        // });
       }
 
       if (rvecDegree[0] < -100 && !anhQuayPhai && !!anhQuayTrai) {
         console.log(
-          "Rotation Vector (in degree):",
-          rvec.data64F.map(d => (d / Math.PI) * 180)
+          'Rotation Vector (in degree):',
+          rvec.data64F.map((d) => (d / Math.PI) * 180)
         );
-        tempAlert('Thanh cong. Quay mat chinh giua', 5000)
+        tempAlert('Thanh cong. Quay mat chinh giua', 5000);
         let canvas = document.querySelector('canvas');
         anhQuayPhai = canvas.toDataURL('image/jpeg');
-        canvas.toBlob(function(blob) {
-          var newImg = document.createElement('img'),
-              url = URL.createObjectURL(blob);
-        
-          newImg.onload = function() {
-            // no longer need to read the blob so it's revoked
-            URL.revokeObjectURL(url);
-          };
-        
-          newImg.src = url;
-          document.body.appendChild(newImg);
-        });
+        captureImage(canvas);
+
+        // canvas.toBlob(function (blob) {
+        //   var newImg = document.createElement('img'),
+        //     url = URL.createObjectURL(blob);
+
+        //   newImg.onload = function () {
+        //     // no longer need to read the blob so it's revoked
+        //     URL.revokeObjectURL(url);
+        //   };
+
+        //   newImg.src = url;
+        //   document.body.appendChild(newImg);
+        // });
       }
 
       if (rvecDegree[0] < 20 && rvecDegree[0] > -20 && !anhGiua && !!anhQuayTrai && !!anhQuayPhai) {
         console.log(
-          "Rotation Vector (in degree):",
-          rvec.data64F.map(d => (d / Math.PI) * 180)
+          'Rotation Vector (in degree):',
+          rvec.data64F.map((d) => (d / Math.PI) * 180)
         );
-      tempAlert('Thanh cong', 5000)
+        tempAlert('Thanh cong', 5000);
         let canvas = document.querySelector('canvas');
         anhGiua = canvas.toDataURL('image/jpeg');
-        canvas.toBlob(function(blob) {
-          var newImg = document.createElement('img'),
-              url = URL.createObjectURL(blob);
-        
-          newImg.onload = function() {
-            // no longer need to read the blob so it's revoked
-            URL.revokeObjectURL(url);
-          };
-        
-          newImg.src = url;
-          document.body.appendChild(newImg);
-        });
+        captureImage(canvas);
+
+        // canvas.toBlob(function (blob) {
+        //   var newImg = document.createElement('img'),
+        //     url = URL.createObjectURL(blob);
+
+        //   newImg.onload = function () {
+        //     // no longer need to read the blob so it's revoked
+        //     URL.revokeObjectURL(url);
+        //   };
+
+        //   newImg.src = url;
+        //   document.body.appendChild(newImg);
+        // });
       }
-
-
 
       // console.log('im: ', document.querySelector("canvas"))
       // color the detected eyes and nose to purple
@@ -303,24 +308,23 @@ function main(sources) {
       // Display image
       // cv.imshow(document.querySelector("canvas"), im);
       // im.delete();
-    }
+    },
   });
-
 
   const params$ = xs.of({
     singlePoseDetection: { minPoseConfidence: 0.2 },
-    output: {showPoints: false, showSkeleton: false}
+    output: { showPoints: false, showSkeleton: false },
   });
   const vdom$ = sources.PoseDetection.DOM;
 
   return {
     DOM: vdom$,
-    PoseDetection: params$
+    PoseDetection: params$,
   };
 }
 
 // Check out https://cycle.js.org/ for using Cycle.js
 run(main, {
-  DOM: makeDOMDriver("#app"),
-  PoseDetection: makePoseDetectionDriver()
+  DOM: makeDOMDriver('#app'),
+  PoseDetection: makePoseDetectionDriver(),
 });
