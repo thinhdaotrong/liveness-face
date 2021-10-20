@@ -8,4 +8,13 @@
 }
 
 .capture-button {
+    position: absolute;
+    top: 200px;
+    left: 660px;
+}
+
+.captured-image {
+    position: absolute;
+    top: 8px;
+    left: 760px;
 }

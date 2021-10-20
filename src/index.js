@@ -18,7 +18,8 @@ function tempAlert(msg, duration) {
   //  document.body.appendChild(el);
 }
 
-function captureImage(canvas) {
+function captureImage() {
+  let canvas = document.querySelector('canvas');
   canvas.toBlob(function (blob) {
     var newImg = document.createElement('img'),
       url = URL.createObjectURL(blob);
@@ -32,6 +33,23 @@ function captureImage(canvas) {
     document.body.appendChild(newImg);
   });
 }
+
+document.getElementById('captrue-button').onclick = function captrue() {
+  let canvas = document.querySelector('canvas');
+  canvas.toBlob(function (blob) {
+    var img = document.getElementById('captured-image'),
+      url = URL.createObjectURL(blob);
+
+    img.onload = function () {
+      // no longer need to read the blob so it's revoked
+      URL.revokeObjectURL(url);
+    };
+
+    img.src = url;
+    // document.body.appendChild(img);
+  });
+}
+
 
 function main(sources) {
   // 3D model points
@@ -206,24 +224,10 @@ function main(sources) {
           'Rotation Vector (in degree):',
           rvec.data64F.map((d) => (d / Math.PI) * 180)
         );
-        // window.alert('Thanh cong. Quay mat sang phai')
         tempAlert('Thanh cong. Quay mat sang phai', 5000);
         let canvas = document.querySelector('canvas');
         anhQuayTrai = canvas.toDataURL('image/jpeg');
-        captureImage(canvas);
-        // canvas.toBlob(function (blob) {
-        //   var newImg = document.createElement('img'),
-        //     url = URL.createObjectURL(blob);
-
-        //   newImg.onload = function () {
-        //     // no longer need to read the blob so it's revoked
-        //     URL.revokeObjectURL(url);
-        //   };
-
-        //   newImg.src = url;
-        //   document.body.appendChild(newImg);
-        // });
-      }
+        captureImage();      }
 
       if (rvecDegree[0] < -100 && !anhQuayPhai && !!anhQuayTrai) {
         console.log(
@@ -233,20 +237,7 @@ function main(sources) {
         tempAlert('Thanh cong. Quay mat chinh giua', 5000);
         let canvas = document.querySelector('canvas');
         anhQuayPhai = canvas.toDataURL('image/jpeg');
-        captureImage(canvas);
-
-        // canvas.toBlob(function (blob) {
-        //   var newImg = document.createElement('img'),
-        //     url = URL.createObjectURL(blob);
-
-        //   newImg.onload = function () {
-        //     // no longer need to read the blob so it's revoked
-        //     URL.revokeObjectURL(url);
-        //   };
-
-        //   newImg.src = url;
-        //   document.body.appendChild(newImg);
-        // });
+        captureImage();
       }
 
       if (rvecDegree[0] < 20 && rvecDegree[0] > -20 && !anhGiua && !!anhQuayTrai && !!anhQuayPhai) {
@@ -257,20 +248,7 @@ function main(sources) {
         tempAlert('Thanh cong', 5000);
         let canvas = document.querySelector('canvas');
         anhGiua = canvas.toDataURL('image/jpeg');
-        captureImage(canvas);
-
-        // canvas.toBlob(function (blob) {
-        //   var newImg = document.createElement('img'),
-        //     url = URL.createObjectURL(blob);
-
-        //   newImg.onload = function () {
-        //     // no longer need to read the blob so it's revoked
-        //     URL.revokeObjectURL(url);
-        //   };
-
-        //   newImg.src = url;
-        //   document.body.appendChild(newImg);
-        // });
+        captureImage();
       }
 
       // console.log('im: ', document.querySelector("canvas"))
