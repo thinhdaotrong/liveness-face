@@ -34,7 +34,7 @@ function captureImage() {
   });
 }
 
-document.getElementById('captrue-button').onclick = function captrue() {
+document.getElementById('capture-button').onclick = function capture() {
   let canvas = document.querySelector('canvas');
   canvas.toBlob(function (blob) {
     var img = document.getElementById('captured-image'),
@@ -48,8 +48,7 @@ document.getElementById('captrue-button').onclick = function captrue() {
     img.src = url;
     // document.body.appendChild(img);
   });
-}
-
+};
 
 function main(sources) {
   // 3D model points
@@ -227,7 +226,8 @@ function main(sources) {
         tempAlert('Thanh cong. Quay mat sang phai', 5000);
         let canvas = document.querySelector('canvas');
         anhQuayTrai = canvas.toDataURL('image/jpeg');
-        captureImage();      }
+        captureImage();
+      }
 
       if (rvecDegree[0] < -100 && !anhQuayPhai && !!anhQuayTrai) {
         console.log(
