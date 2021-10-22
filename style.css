@@ -1,3 +1,7 @@
+#app > div > div {
+    display: none;
+}
+
 .rectangle {
     position: absolute;
     width: 300px;
