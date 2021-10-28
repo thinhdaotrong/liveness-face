@@ -37,11 +37,6 @@ function captureImage() {
 
 function check(left, right, mid) {
   console.log('left: ', left);
-  var myHeaders = new Headers();
-  myHeaders.append(
-    'Authorization',
-    'Basic QTN6enQyM3F4NWR0alpnZDc0WndPZ29RVlpkc25UUTMyY2ZQeU1TSWh5b0o6YWY4ZWJkMWVkY2E1ZjM5OGRjNDVkZTFlZjhhNmFjZTk0MGRjZjA5YTYyODkzODNkZjYxZDBiZTgwZmE3MzJkMQ=='
-  );
 
   var formdata = new FormData();
   formdata.append('portrait_left', left.replace('data:image/jpeg;base64,', ''));
@@ -51,7 +46,10 @@ function check(left, right, mid) {
   var requestOptions = {
     url: 'https://demo.computervision.com.vn/api/v2/ekyc/verify_liveness?format_type=base64',
     method: 'GET',
-    headers: myHeaders,
+    headers: {
+      Authorization:
+        'Basic QTN6enQyM3F4NWR0alpnZDc0WndPZ29RVlpkc25UUTMyY2ZQeU1TSWh5b0o6YWY4ZWJkMWVkY2E1ZjM5OGRjNDVkZTFlZjhhNmFjZTk0MGRjZjA5YTYyODkzODNkZjYxZDBiZTgwZmE3MzJkMQ==',
+    },
     data: formdata,
   };
 
