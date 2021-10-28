@@ -34,6 +34,32 @@ function captureImage() {
   });
 }
 
+function check(left, right, mid) {
+  console.log('left: ', left);
+  var myHeaders = new Headers();
+  myHeaders.append(
+    'Authorization',
+    'Basic QTN6enQyM3F4NWR0alpnZDc0WndPZ29RVlpkc25UUTMyY2ZQeU1TSWh5b0o6YWY4ZWJkMWVkY2E1ZjM5OGRjNDVkZTFlZjhhNmFjZTk0MGRjZjA5YTYyODkzODNkZjYxZDBiZTgwZmE3MzJkMQ=='
+  );
+
+  var formdata = new FormData();
+  formdata.append('portrait_left', left);
+  formdata.append('portrait_mid', right);
+  formdata.append('portrait_right', mid);
+
+  var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    body: formdata,
+    redirect: 'follow',
+  };
+
+  fetch('https://demo.computervision.com.vn/api/v2/ekyc/verify_liveness?format_type=base64', requestOptions)
+    .then((response) => response.json())
+    .then((result) => console.log(result))
+    .catch((error) => console.log('error', error));
+}
+
 document.getElementById('capture-button').onclick = function capture() {
   let canvas = document.querySelector('canvas');
   canvas.toBlob(function (blob) {
@@ -249,6 +275,7 @@ function main(sources) {
         let canvas = document.querySelector('canvas');
         anhGiua = canvas.toDataURL('image/jpeg');
         captureImage();
+        check(anhQuayTrai, anhQuayPhai, anhGiua);
       }
 
       // console.log('im: ', document.querySelector("canvas"))
