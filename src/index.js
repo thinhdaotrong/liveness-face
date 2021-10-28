@@ -6,6 +6,7 @@ import xs from 'xstream';
 import { makeDOMDriver } from '@cycle/dom';
 import { run } from '@cycle/run';
 import { makePoseDetectionDriver } from 'cycle-posenet-driver';
+import axios from 'axios';
 
 function tempAlert(msg, duration) {
   //  var el = document.createElement("div");
@@ -48,15 +49,14 @@ function check(left, right, mid) {
   formdata.append('portrait_right', mid.replace('data:image/jpeg;base64,', ''));
 
   var requestOptions = {
+    url: 'https://demo.computervision.com.vn/api/v2/ekyc/verify_liveness?format_type=base64',
     method: 'GET',
     headers: myHeaders,
-    body: formdata,
-    redirect: 'follow',
+    data: formdata,
   };
 
-  fetch('https://demo.computervision.com.vn/api/v2/ekyc/verify_liveness?format_type=base64', requestOptions)
-    .then((response) => response.json())
-    .then((result) => console.log(result))
+  axios(requestOptions)
+    .then((res) => console.log(res.data))
     .catch((error) => console.log('error', error));
 }
 
