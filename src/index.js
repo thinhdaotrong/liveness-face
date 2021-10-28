@@ -43,9 +43,9 @@ function check(left, right, mid) {
   );
 
   var formdata = new FormData();
-  formdata.append('portrait_left', left);
-  formdata.append('portrait_mid', right);
-  formdata.append('portrait_right', mid);
+  formdata.append('portrait_left', left.replace('data:image/jpeg;base64,', ''));
+  formdata.append('portrait_mid', right.replace('data:image/jpeg;base64,', ''));
+  formdata.append('portrait_right', mid.replace('data:image/jpeg;base64,', ''));
 
   var requestOptions = {
     method: 'GET',
