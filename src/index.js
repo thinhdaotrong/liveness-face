@@ -36,16 +36,9 @@ function captureImage() {
 }
 
 function check(left, right, mid) {
-  console.log('left: ', left);
-
-  var formdata = new FormData();
-  formdata.append('portrait_left', left.replace('data:image/jpeg;base64,', ''));
-  formdata.append('portrait_right', right.replace('data:image/jpeg;base64,', ''));
-  formdata.append('portrait_mid', mid.replace('data:image/jpeg;base64,', ''));
-
   var requestOptions = {
     url: 'https://demo.computervision.com.vn/api/v2/ekyc/verify_liveness?format_type=base64',
-    method: 'GET',
+    method: 'POST',
     headers: {
       Authorization:
         'Basic QTN6enQyM3F4NWR0alpnZDc0WndPZ29RVlpkc25UUTMyY2ZQeU1TSWh5b0o6YWY4ZWJkMWVkY2E1ZjM5OGRjNDVkZTFlZjhhNmFjZTk0MGRjZjA5YTYyODkzODNkZjYxZDBiZTgwZmE3MzJkMQ==',
@@ -58,7 +51,11 @@ function check(left, right, mid) {
   };
 
   axios(requestOptions)
-    .then((res) => console.log(res.data))
+    .then((res) => {
+      console.log(res.data);
+      const { data, errorCode, errorMessage } = res.data;
+      tempAlert(data?.invalidMessage, 5000);
+    })
     .catch((error) => console.log('error', error));
 }
 
